@@ -11,7 +11,7 @@
     <div class="brand">
       <span class="logo">📝</span>
       <strong>TOEFL Integrated Writing — Typing Trainer</strong>
-      <span class="hint">Word Bank + Karaoke Section Drill (EN→ID)</span>
+      <span class="hint">Filled Templates + Word Bank + Karaoke + Full Essay</span>
     </div>
     <div class="controls">
       <div class="timer">
@@ -26,11 +26,59 @@
   </header>
 
   <main class="container">
-    <!-- WORD BANK TRAINER -->
+
+    <!-- 1) FILLED TEMPLATE WITH ALGAE NOTES -->
+    <section class="card">
+      <div class="card-head">
+        <h3>📝 Filled Template with Algae Notes</h3>
+        <p>Pilih section + style → lihat Notes dan kalimat final. Copy atau kirim ke Karaoke (Custom).</p>
+      </div>
+
+      <div class="row wrap gap">
+        <label class="inline">
+          Section
+          <select id="algaeSection" class="input">
+            <option value="intro">Introduction</option>
+            <option value="body1">Body Paragraph 1 – Land & Water</option>
+            <option value="body2">Body Paragraph 2 – Cost</option>
+            <option value="body3">Body Paragraph 3 – Carbon Dioxide</option>
+            <option value="conclusion">Conclusion</option>
+          </select>
+        </label>
+
+        <label class="inline">
+          Style
+          <select id="algaeStyle" class="input">
+            <option value="simple">Simple</option>
+            <option value="easy">Easy to remember</option>
+            <option value="academic">Academic</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </label>
+
+        <div class="row gap">
+          <button id="copyAlgaeText" class="btn ghost">Copy text</button>
+          <button id="useAlgaeInKaraoke" class="btn">Use in Karaoke (Custom)</button>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="box">
+          <h4>Notes</h4>
+          <pre id="algaeNotes" class="notes mono"></pre>
+        </div>
+        <div class="box">
+          <h4>Filled Text</h4>
+          <pre id="algaeText" class="notes mono"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2) WORD BANK -->
     <section class="card">
       <div class="card-head">
         <h3>🔤 Word Bank Typing Trainer + ID Gloss</h3>
-        <p>Type tepat → <b class="warn">merah jika salah</b>, <b class="ok">hijau jika benar</b>. Tekan Enter (atau auto-next jika aktif).</p>
+        <p>Type tepat → <b class="warn">merah jika salah</b>, <b class="ok">hijau jika benar</b>. Enter = cek (auto-next jika aktif).</p>
       </div>
 
       <div class="row wrap gap">
@@ -89,11 +137,11 @@
       </div>
     </section>
 
-    <!-- KARAOKE DRILL -->
+    <!-- 3) KARAOKE DRILL -->
     <section class="card">
       <div class="card-head">
         <h3>🎤 Karaoke Drill Mode</h3>
-        <p>Type exact template — red/green live seperti contohmu.</p>
+        <p>Type exact template — merah/hijau live. Bisa pakai Style bank atau <b>Custom (from Filled Template)</b>.</p>
       </div>
 
       <div class="row wrap gap">
@@ -106,6 +154,17 @@
             <option value="body2">Body 2</option>
             <option value="body3">Body 3</option>
             <option value="conclusion">Conclusion</option>
+            <option value="custom">Custom (from Filled Template)</option>
+          </select>
+        </label>
+
+        <label class="inline">
+          Style
+          <select id="styleSelect" class="input" title="Choose template style">
+            <option value="simple">Simple</option>
+            <option value="easy">Easy to remember</option>
+            <option value="academic">Academic</option>
+            <option value="advanced">Advanced</option>
           </select>
         </label>
 
@@ -136,6 +195,34 @@
       <div class="progress"><div id="secBar" class="bar" style="width:0%"></div></div>
       <div class="mini muted">Type to match the template exactly.</div>
     </section>
+
+    <!-- 4) FULL ESSAY BUILDER -->
+    <section class="card">
+      <div class="card-head">
+        <h3>📄 Full Essay (Algae) Builder</h3>
+        <p>Gabungkan semua section dengan satu style → Copy atau kirim ke Karaoke (Custom).</p>
+      </div>
+
+      <div class="row wrap gap">
+        <label class="inline">
+          Style
+          <select id="fullStyle" class="input">
+            <option value="simple">Simple</option>
+            <option value="easy">Easy to remember</option>
+            <option value="academic">Academic</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </label>
+        <div class="row gap">
+          <button id="buildFull" class="btn">Build</button>
+          <button id="copyFull" class="btn ghost">Copy</button>
+          <button id="useFullInKaraoke" class="btn">Use in Karaoke (Custom)</button>
+        </div>
+      </div>
+
+      <pre id="fullEssay" class="notes mono"></pre>
+    </section>
+
   </main>
 
   <footer class="footer">
