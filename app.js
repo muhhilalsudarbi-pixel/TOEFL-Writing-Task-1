@@ -31,7 +31,6 @@ const SECTIONS={
 const WB={
   reading:{
     title:"Reading verbs (klaim bacaan)",
-    pos:'awal klaim bacaan, mis. “The passage states/argues/claims that …”',
     rows:[
       {en:"states",id:"menyatakan",pos:'“The passage states that …”',ex:"The passage states that driverless cars could increase road efficiency."},
       {en:"argues",id:"berpendapat",pos:'“The author argues that …”',ex:"The author argues that automation threatens employment."},
@@ -47,7 +46,6 @@ const WB={
   },
   lecture:{
     title:"Lecture verbs (sanggahan dosen)",
-    pos:'kalimat kedua paragraf isi, mis. “The lecturer refutes this point …”',
     rows:[
       {en:"refutes",id:"menyangkal",pos:'“The lecturer refutes this point …”',ex:"The lecturer refutes this point by citing new job categories."},
       {en:"counters",id:"menentang",pos:'“The professor counters this idea …”',ex:"The professor counters this idea with cost-curve data."},
@@ -63,7 +61,6 @@ const WB={
   },
   contrast:{
     title:"Transitions — Contrast (perlawanan)",
-    pos:"kalimat 2, menghubungkan bacaan ↔ lecture",
     rows:[
       {en:"however",id:"namun / tetapi",pos:"kalimat 2",ex:"However, the lecturer presents conflicting evidence."},
       {en:"in contrast",id:"sebaliknya",pos:"kalimat 2",ex:"In contrast, the professor notes declining costs."},
@@ -76,7 +73,6 @@ const WB={
   },
   progression:{
     title:"Transitions — Progression (urutan/penalaran)",
-    pos:"awal paragraf & kesimpulan mini",
     rows:[
       {en:"first",id:"pertama",pos:"awal paragraf 1",ex:"First, the passage claims jobs will be lost."},
       {en:"second",id:"kedua",pos:"awal paragraf 2",ex:"Second, the article asserts costs are too high."},
@@ -92,7 +88,6 @@ const WB={
   },
   mini:{
     title:"Mini-conclusions (penutup paragraf)",
-    pos:"kalimat 3 paragraf isi",
     rows:[
       {en:"this shows that",id:"ini menunjukkan bahwa",pos:"kalimat 3",ex:"This shows that the employment fear is overstated."},
       {en:"this indicates that",id:"ini mengindikasikan bahwa",pos:"kalimat 3",ex:"This indicates that scaling will reduce prices."},
@@ -108,6 +103,7 @@ const WB={
    WORD BANK TRAINER
 ========================= */
 const wbSet=document.getElementById("wbSet");
+const wbField=document.getElementById("wbField");
 const wbCase=document.getElementById("wbCase");
 const wbAuto=document.getElementById("wbAuto");
 const wbShuffle=document.getElementById("wbShuffle");
@@ -125,41 +121,122 @@ const wbMistakes=document.getElementById("wbMistakes");
 const wbStreak=document.getElementById("wbStreak");
 
 let order=[], idx=0, correct=0, mistakes=0, streak=0;
+const _cycleOrder=["en","pos","ex"];
+let _cycleIdx=0;
 
 function shuffleArr(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a }
+function normalize(s){ const t=s.replace(/\s+/g," ").trim(); return wbCase.checked?t.toLowerCase():t; }
+function getActiveField(){ return wbField.value==="cycle" ? _cycleOrder[_cycleIdx] : wbField.value; }
+function getRowsForSet(){
+  if(wbSet.value==="all"){
+    // concat in a stable order
+    return [
+      ...WB.reading.rows.map(r=>({...r,_group:"reading"})),
+      ...WB.lecture.rows.map(r=>({...r,_group:"lecture"})),
+      ...WB.contrast.rows.map(r=>({...r,_group:"contrast"})),
+      ...WB.progression.rows.map(r=>({...r,_group:"progression"})),
+      ...WB.mini.rows.map(r=>({...r,_group:"mini"})),
+    ];
+  }
+  return WB[wbSet.value].rows;
+}
+function pickTargetFromRow(row){
+  const f=getActiveField();
+  if(f==="pos") return row.pos;
+  if(f==="ex")  return row.ex;
+  return row.en;
+}
+
 function loadWB(resetOrder=true){
-  const rows=WB[wbSet.value].rows;
+  const rows=getRowsForSet();
   if(resetOrder){ order=rows.map((_,i)=>i); }
-  wbInput.value="";
-  wbInput.classList.remove("badInput","goodInput");
   const i=order[idx] ?? 0;
   const r=rows[i];
-  wbTarget.textContent=r.en;
-  wbArti.textContent=r.id;
-  wbPos.textContent=r.pos;
-  wbExample.textContent=r.ex;
+
+  const field=getActiveField();
+  const targetText=pickTargetFromRow(r);
+
+  wbTarget.textContent=targetText;
+  wbArti.textContent=r.id ?? "—";
+  wbPos.textContent=r.pos ?? "—";
+  wbExample.textContent=r.ex ?? "—";
+
+  wbInput.value="";
+  wbInput.classList.remove("badInput","goodInput");
   wbIndex.textContent=`${idx+1}/${rows.length}`;
+
+  wbInput.placeholder = field==="en" ? "Type the word exactly..."
+                       : field==="pos" ? "Type the Letak (template) exactly..."
+                       : "Type the Contoh (example) exactly...";
 }
+
 function wbCheck(){
-  const rows=WB[wbSet.value].rows;
+  const rows=getRowsForSet();
   const r=rows[order[idx]];
-  const A=wbCase.checked?wbInput.value.trim().toLowerCase():wbInput.value.trim();
-  const B=wbCase.checked?r.en.toLowerCase():r.en;
+  const A=normalize(wbInput.value);
+  const B=normalize(pickTargetFromRow(r));
+
   if(A===B){
-    wbInput.classList.remove("badInput"); wbInput.classList.add("goodInput");
-    correct++; streak++; wbCorrect.textContent=correct; wbStreak.textContent=streak;
+    wbInput.classList.remove("badInput");
+    wbInput.classList.add("goodInput");
+    correct++; streak++;
+    wbCorrect.textContent=correct;
+    wbStreak.textContent=streak;
+
     if(wbAuto.checked){
-      if(idx<rows.length-1){ idx++; loadWB(false);} else { /* done */ }
-      wbInput.value=""; wbInput.classList.remove("goodInput");
+      // cycle through fields within item
+      if(wbField.value==="cycle" && _cycleIdx < _cycleOrder.length-1){
+        _cycleIdx++;
+        wbInput.value="";
+        wbInput.classList.remove("goodInput");
+        loadWB(false);
+        return;
+      }
+      // next item
+      _cycleIdx=0;
+      if(idx < rows.length-1){ idx++; loadWB(false); }
+      wbInput.value="";
+      wbInput.classList.remove("goodInput");
     }
   }else{
-    wbInput.classList.remove("goodInput"); wbInput.classList.add("badInput");
+    wbInput.classList.remove("goodInput");
+    wbInput.classList.add("badInput");
   }
 }
-wbInput.addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ if(wbInput.value.trim()===""){return;} const rows=WB[wbSet.value].rows; const r=rows[order[idx]]; const A=wbCase.checked?wbInput.value.trim().toLowerCase():wbInput.value.trim(); const B=wbCase.checked?r.en.toLowerCase():r.en; if(A!==B){ mistakes++; streak=0; wbMistakes.textContent=mistakes; wbStreak.textContent=streak; } wbCheck(); }});
-wbShuffle.addEventListener("click",()=>{ order=shuffleArr(WB[wbSet.value].rows.map((_,i)=>i)); idx=0; correct=0; mistakes=0; streak=0; wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0; loadWB(false); });
-wbReset.addEventListener("click",()=>{ idx=0; correct=0; mistakes=0; streak=0; wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0; loadWB(true); });
-wbSet.addEventListener("change",()=>{ idx=0; correct=0; mistakes=0; streak=0; wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0; loadWB(true); });
+
+wbInput.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    if(wbInput.value.trim()==="") return;
+    const rows=getRowsForSet();
+    const r=rows[order[idx]];
+    const A=normalize(wbInput.value);
+    const B=normalize(pickTargetFromRow(r));
+    if(A!==B){ mistakes++; streak=0; wbMistakes.textContent=mistakes; wbStreak.textContent=streak; }
+    wbCheck();
+  }
+});
+
+wbShuffle.addEventListener("click",()=>{
+  const rows=getRowsForSet();
+  order=shuffleArr(rows.map((_,i)=>i));
+  idx=0; correct=0; mistakes=0; streak=0; _cycleIdx=0;
+  wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0;
+  loadWB(false);
+});
+wbReset.addEventListener("click",()=>{
+  idx=0; correct=0; mistakes=0; streak=0; _cycleIdx=0;
+  wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0;
+  loadWB(true);
+});
+wbSet.addEventListener("change",()=>{
+  idx=0; correct=0; mistakes=0; streak=0; _cycleIdx=0;
+  wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0;
+  loadWB(true);
+});
+wbField.addEventListener("change",()=>{
+  _cycleIdx=0;
+  loadWB(false);
+});
 
 /* =========================
    KARAOKE DRILL
@@ -176,14 +253,23 @@ const secAcc=document.getElementById("secAcc");
 const secWpm=document.getElementById("secWpm");
 const secBar=document.getElementById("secBar");
 
-let tStart=null, errCount=0;
+let tStart=null;
+
+const ALL_ORDER=["intro","body1","body2","body3","conclusion"];
+let allIdx=0;
 
 function tokenSplit(s, withPunct){
-  // keep spaces as separate tokens; optionally keep punctuation tokens
   return s.split(withPunct? /(\s+|[.,;:!?—-])/ : /(\s+)/).filter(x=>x.length>0);
 }
+function currentSectionKey(){
+  if(secSelect.value!=="all") return secSelect.value;
+  return ALL_ORDER[allIdx] || "conclusion";
+}
+function currentTemplateText(){
+  return SECTIONS[currentSectionKey()];
+}
 function renderTemplate(){
-  const txt=SECTIONS[secSelect.value];
+  const txt=currentTemplateText();
   const toks=tokenSplit(txt, showPunct.checked);
   secTemplate.innerHTML = toks.map(t=>{
     if(/\s+/.test(t)) return `<span class="tk space">${t}</span>`;
@@ -193,11 +279,10 @@ function renderTemplate(){
 }
 
 function updateKaraoke(){
-  const txt=SECTIONS[secSelect.value];
+  const txt=currentTemplateText();
   const tgt=tokenSplit(txt, showPunct.checked);
   const mine=tokenSplit(secTyped.value, showPunct.checked);
 
-  // live color
   let wrong=0, matchCount=0;
   const out=tgt.map((tok,i)=>{
     const my = mine[i] ?? "";
@@ -211,7 +296,6 @@ function updateKaraoke(){
   }).join("");
   secTemplate.innerHTML=out;
 
-  // stats
   const total=tgt.filter(t=>!/^\s+$/.test(t)).length;
   const prog=Math.min(100, Math.round((matchCount/total)*100));
   const acc= (matchCount+wrong) ? Math.round((matchCount/(matchCount+wrong))*100) : 0;
@@ -221,78 +305,56 @@ function updateKaraoke(){
   secErr.textContent=wrong;
   secBar.style.width=prog+"%";
 
-  // WPM
   if(!tStart) tStart=Date.now();
   const mins=(Date.now()-tStart)/60000;
   const words=secTyped.value.trim().split(/\s+/).filter(Boolean).length;
   secWpm.textContent= mins>0 ? Math.round(words/mins) : 0;
 
-  // auto-next when finished perfectly
+  // Auto-next section logic (works for single section AND all)
   if(autoNextSec.checked && prog===100 && wrong===0){
-    const order=["intro","body1","body2","body3","conclusion"];
-    const cur=order.indexOf(secSelect.value);
-    const nxt=order[cur+1];
-    if(nxt){ secSelect.value=nxt; resetKaraoke(); }
+    if(secSelect.value==="all"){
+      if(allIdx < ALL_ORDER.length-1){
+        allIdx++;
+        resetKaraoke(false); // go next, keep all-mode
+      }
+    }else{
+      // no-op for single unless user wants to switch manually
+    }
   }
 }
 
-function resetKaraoke(){
-  secTyped.value=""; errCount=0; tStart=null;
+function resetKaraoke(hard=true){
+  if(hard){
+    if(secSelect.value==="all") allIdx=0;
+  }
+  secTyped.value=""; tStart=null;
   renderTemplate(); updateKaraoke();
 }
 
-secSelect.addEventListener("change", resetKaraoke);
+secSelect.addEventListener("change", ()=> resetKaraoke(true));
 showPunct.addEventListener("change", ()=>{ renderTemplate(); updateKaraoke(); });
-resetDrill.addEventListener("click", resetKaraoke);
+resetDrill.addEventListener("click", ()=> resetKaraoke(true));
 secTyped.addEventListener("input", updateKaraoke);
-
-/* =========================
-   WORD BANK TABLES
-========================= */
-const wbTables=document.getElementById("wbTables");
-function buildTables(){
-  wbTables.innerHTML="";
-  Object.entries(WB).forEach(([key,grp])=>{
-    const box=document.createElement("div");
-    box.className="table";
-    const rowsHtml=grp.rows.map(r=>
-      `<div class="rowline">
-         <div><b>${r.en}</b><br><span class="mini muted">${r.id}</span></div>
-         <div><span class="mini">${r.pos}</span></div>
-         <div><span class="mini">e.g., ${r.ex}</span></div>
-       </div>`).join("");
-    box.innerHTML=`
-      <h4>${grp.title}</h4>
-      <div class="rows">${rowsHtml}</div>
-      <div class="actions">
-        <button class="practiceBtn" data-key="${key}">Practice this set</button>
-      </div>`;
-    wbTables.appendChild(box);
-  });
-
-  // hook: Practice this set → load WB set + reset
-  wbTables.querySelectorAll(".practiceBtn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      wbSet.value=btn.dataset.key;
-      idx=0; correct=0; mistakes=0; streak=0;
-      wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0;
-      loadWB(true); wbInput.focus();
-    });
-  });
-}
 
 /* =========================
    INIT
 ========================= */
-function initWBOrder(){
-  order=WB[wbSet.value].rows.map((_,i)=>i); idx=0; correct=0; mistakes=0; streak=0;
-  wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0;
-}
 function init(){
-  buildTables();
-  initWBOrder();
+  // Word Bank
+  order=getRowsForSet().map((_,i)=>i);
+  idx=0; correct=0; mistakes=0; streak=0; _cycleIdx=0;
+  wbCorrect.textContent=0; wbMistakes.textContent=0; wbStreak.textContent=0;
   loadWB(true);
+
+  // Karaoke
   renderTemplate();
   updateKaraoke();
+
+  // Quality of life: hotkeys
+  document.addEventListener("keydown",(e)=>{
+    if(e.target===wbInput || e.target===secTyped) return; // don't hijack typing
+    if(e.code==="Space"){ e.preventDefault(); running?stopTimer():startTimer(); }
+    if(e.key==="r"||e.key==="R"){ resetTimer(); }
+  });
 }
 document.addEventListener("DOMContentLoaded", init);
