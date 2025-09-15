@@ -37,11 +37,22 @@
         <label class="inline">
           Set
           <select id="wbSet" class="input">
+            <option value="all">All (combine)</option>
             <option value="reading">Reading verbs</option>
             <option value="lecture">Lecture verbs</option>
             <option value="contrast">Transitions (contrast)</option>
             <option value="progression">Transitions (progression)</option>
             <option value="mini">Mini-conclusions</option>
+          </select>
+        </label>
+
+        <label class="inline">
+          Practice
+          <select id="wbField" class="input" title="Choose what to type">
+            <option value="en">Word</option>
+            <option value="pos">Letak (template)</option>
+            <option value="ex">Contoh (example)</option>
+            <option value="cycle">Cycle (Word → Letak → Contoh)</option>
           </select>
         </label>
 
@@ -61,7 +72,7 @@
 
       <div class="wb-typing">
         <div class="tag" id="wbTarget">states</div>
-        <input id="wbInput" class="wb-input" placeholder="Type exactly..." autocomplete="off" />
+        <input id="wbInput" class="wb-input" placeholder="Type the word exactly..." autocomplete="off" />
       </div>
 
       <div class="wb-gloss mono mini">
@@ -89,6 +100,7 @@
         <label class="inline">
           Section
           <select id="secSelect" class="input">
+            <option value="all">All (Intro → B1 → B2 → B3 → Concl.)</option>
             <option value="intro">Introduction</option>
             <option value="body1">Body 1</option>
             <option value="body2">Body 2</option>
@@ -103,7 +115,7 @@
         </label>
 
         <label class="inline">
-          <input type="checkbox" id="autoNextSec" />
+          <input type="checkbox" id="autoNextSec" checked />
           Auto-next section
         </label>
 
@@ -123,15 +135,6 @@
       </div>
       <div class="progress"><div id="secBar" class="bar" style="width:0%"></div></div>
       <div class="mini muted">Type to match the template exactly.</div>
-    </section>
-
-    <!-- WORD BANK TABLES (EN→ID + posisi + contoh) -->
-    <section class="card">
-      <div class="card-head">
-        <h3>🏗 Word Bank dengan Terjemahan + Posisi di Template</h3>
-        <p>Klik “Practice this set” untuk berlatih di mode Word Bank.</p>
-      </div>
-      <div id="wbTables" class="wb-tables"></div>
     </section>
   </main>
 
