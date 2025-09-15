@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TOEFL Integrated Writing – Trainer (Vanilla)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">📝</span>
+      <strong>TOEFL Integrated Writing — Typing Trainer</strong>
+      <span class="hint">Word Bank + Karaoke Section Drill (EN→ID)</span>
+    </div>
+    <div class="controls">
+      <div class="timer">
+        <span id="clock">20:00</span>
+        <button id="startPauseBtn" class="btn icon" title="Start/Pause">▶</button>
+        <button id="resetBtn" class="btn icon" title="Reset">⟳</button>
+      </div>
+      <button class="btn ghost preset" data-min="20">20′</button>
+      <button class="btn ghost preset" data-min="10">10′</button>
+      <button class="btn ghost preset" data-min="5">5′</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- WORD BANK TRAINER -->
+    <section class="card">
+      <div class="card-head">
+        <h3>🔤 Word Bank Typing Trainer + ID Gloss</h3>
+        <p>Type tepat → <b class="warn">merah jika salah</b>, <b class="ok">hijau jika benar</b>. Tekan Enter (atau auto-next jika aktif).</p>
+      </div>
+
+      <div class="row wrap gap">
+        <label class="inline">
+          Set
+          <select id="wbSet" class="input">
+            <option value="reading">Reading verbs</option>
+            <option value="lecture">Lecture verbs</option>
+            <option value="contrast">Transitions (contrast)</option>
+            <option value="progression">Transitions (progression)</option>
+            <option value="mini">Mini-conclusions</option>
+          </select>
+        </label>
+
+        <label class="inline">
+          <input type="checkbox" id="wbCase" checked />
+          Case-insensitive
+        </label>
+
+        <label class="inline">
+          <input type="checkbox" id="wbAuto" checked />
+          Auto-next
+        </label>
+
+        <button id="wbShuffle" class="btn ghost">Shuffle</button>
+        <button id="wbReset" class="btn ghost">Reset</button>
+      </div>
+
+      <div class="wb-typing">
+        <div class="tag" id="wbTarget">states</div>
+        <input id="wbInput" class="wb-input" placeholder="Type exactly..." autocomplete="off" />
+      </div>
+
+      <div class="wb-gloss mono mini">
+        <div><b>Arti (ID):</b> <span id="wbArti">—</span></div>
+        <div><b>Letak di template:</b> <span id="wbPos">—</span></div>
+        <div><b>Contoh:</b> <span id="wbExample">—</span></div>
+      </div>
+
+      <div class="grid stats">
+        <div class="stat"><div>Index</div><strong id="wbIndex">1/10</strong></div>
+        <div class="stat"><div>Correct</div><strong id="wbCorrect">0</strong></div>
+        <div class="stat"><div>Mistakes</div><strong id="wbMistakes">0</strong></div>
+        <div class="stat"><div>Streak</div><strong id="wbStreak">0</strong></div>
+      </div>
+    </section>
+
+    <!-- KARAOKE DRILL -->
+    <section class="card">
+      <div class="card-head">
+        <h3>🎤 Karaoke Drill Mode</h3>
+        <p>Type exact template — red/green live seperti contohmu.</p>
+      </div>
+
+      <div class="row wrap gap">
+        <label class="inline">
+          Section
+          <select id="secSelect" class="input">
+            <option value="intro">Introduction</option>
+            <option value="body1">Body 1</option>
+            <option value="body2">Body 2</option>
+            <option value="body3">Body 3</option>
+            <option value="conclusion">Conclusion</option>
+          </select>
+        </label>
+
+        <label class="inline">
+          <input type="checkbox" id="showPunct" checked />
+          Show punctuation
+        </label>
+
+        <label class="inline">
+          <input type="checkbox" id="autoNextSec" />
+          Auto-next section
+        </label>
+
+        <button id="resetDrill" class="btn ghost">Reset Drill</button>
+      </div>
+
+      <div class="kara-wrap">
+        <div id="secTemplate" class="template mono"></div>
+        <textarea id="secTyped" class="kara-input" rows="4" placeholder="Type to match the template exactly."></textarea>
+      </div>
+
+      <div class="grid stats">
+        <div class="stat"><div>Progress</div><strong id="secProg">0%</strong></div>
+        <div class="stat"><div>Errors</div><strong id="secErr">0</strong></div>
+        <div class="stat"><div>Accuracy</div><strong id="secAcc">0%</strong></div>
+        <div class="stat"><div>WPM</div><strong id="secWpm">0</strong></div>
+      </div>
+      <div class="progress"><div id="secBar" class="bar" style="width:0%"></div></div>
+      <div class="mini muted">Type to match the template exactly.</div>
+    </section>
+
+    <!-- WORD BANK TABLES (EN→ID + posisi + contoh) -->
+    <section class="card">
+      <div class="card-head">
+        <h3>🏗 Word Bank dengan Terjemahan + Posisi di Template</h3>
+        <p>Klik “Practice this set” untuk berlatih di mode Word Bank.</p>
+      </div>
+      <div id="wbTables" class="wb-tables"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Built for Hilal — Pure Vanilla (no frameworks) • EN→ID Gloss • Timer & WPM
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
