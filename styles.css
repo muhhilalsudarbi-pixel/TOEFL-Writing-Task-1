@@ -43,7 +43,7 @@ body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--bg)}
 .wb-gloss{margin-top:.45rem}
 
 .kara-wrap{border:1px dashed var(--line);border-radius:.6rem;padding:.6rem;background:#fafafa}
-.template{border:1px solid var(--line);border-radius:.6rem;padding:.5rem;background:#fff;min-height:54px}
+.template{border:1px solid var(--line);border-radius:.6rem;padding:.5rem;background:#fff;min-height:54px;white-space:pre-wrap}
 .kara-input{width:100%;margin-top:.5rem;border:1px solid var(--line);border-radius:.6rem;padding:.6rem;font-family:var(--mono)}
 
 .tk{padding:0 .5px}
@@ -51,5 +51,10 @@ body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--bg)}
 .good{background:transparent}
 .space{white-space:pre}
 .punct{opacity:.7}
+
+.grid.two{display:grid;grid-template-columns:1fr;gap:.75rem}
+@media (min-width:900px){ .grid.two{grid-template-columns:1fr 1fr} }
+.box{border:1px solid var(--line);border-radius:10px;background:#fff;padding:.6rem}
+.notes{margin:0;white-space:pre-wrap;line-height:1.55}
 
 .footer{text-align:center;padding:16px;color:var(--muted);font-size:.85rem}
